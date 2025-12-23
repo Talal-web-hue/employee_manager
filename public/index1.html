@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="<boostcamp-viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نظام إدارة الموظفين</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ... نفس الـ CSS السابق بدون تغيير ... */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #f5f7fa;
+      color: #333;
+      padding-top: 70px;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+      color: white;
+      padding: 0.8rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo i {
+      color: #3498db;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 0.8rem;
+    }
+    .btn {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+      transition: opacity 0.3s, transform 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    .btn-login { background: #3498db; }
+    .btn-register { background: #2ecc71; }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .section {
+      display: none;
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.8rem;
+      color: #2c3e50;
+      font-size: 1.8rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.4rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .btn-block {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      border-radius: 8px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1.2rem;
+      color: #3498db;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .back-link:hover {
+      color: #2980b9;
+      text-decoration: underline;
+    }
+
+    .message {
+      padding: 0.8rem;
+      margin: 1.2rem 0;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .message.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    .message.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+    .card {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      border-left: 4px solid #3498db;
+    }
+
+    body.logged-in .auth-buttons {
+      display: none !important;
+    }
+    body.logged-in .employee-section {
+      display: block !important;
+    }
+    .employee-section {
+      display: none !important;
+    }
+
+    .placeholder-img {
+      text-align: center;
+      margin: 1.5rem 0;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fas fa-users-cog"></i>
+      <span>نظام الموظفين</span>
+    </div>
+    <div class="nav-links" id="mainNav">
+      <a href="#" data-section="content" class="active">الرئيسية</a>
+      <a href="#" data-section="insert">إضافة موظف</a>
+      <a href="#" data-section="update">تحديث موظف</a>
+      <a href="#" data-section="delete">حذف موظف</a>
+      <a href="#" data-section="index">عرض الموظفين</a>
+    </div>
+    <div class="auth-buttons">
+      <button class="btn btn-register" id="showRegister">إنشاء حساب</button>
+      <button class="btn btn-login" id="showLogin">تسجيل الدخول</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="content" class="section active">
+      <h2>مرحباً بك في نظام إدارة الموظفين</h2>
+      <div class="hero">
+        <div class="placeholder-img">
+          <i class="fas fa-user-friends" style="font-size: 80px; color: #3498db;"></i>
+          <p style="margin-top: 1rem;">نظام متكامل لإدارة بيانات الموظفين</p>
+        </div>
+        <p style="line-height: 1.8; color: #555;">
+          هذا النظام يمكّن المدراء من:<br>
+          ✅ إضافة موظفين جدد<br>
+          ✅ تعديل معلومات الموظفين<br>
+          ✅ حذف موظفين غير نشطين<br>
+          ✅ عرض قائمة كاملة بالموظفين<br>
+        </p>
+        <p style="margin-top: 1.5rem; color: #7f8c8d;">
+          يُرجى <strong>إنشاء حساب</strong> أو <strong>تسجيل الدخول</strong> للوصول إلى الميزات.
+        </p>
+      </div>
+    </div>
+
+    <div id="register" class="section">
+      <h2><i class="fas fa-user-plus"></i> إنشاء حساب مدير</h2>
+      <div class="form-group">
+        <label>الاسم الأول</label>
+        <input type="text" id="reg_first" placeholder="أحمد" required />
+      </div>
+      <div class="form-group">
+        <label>الاسم الأخير</label>
+        <input type="text" id="reg_last" placeholder="محمد" required />
+      </div>
+      <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="reg_email" placeholder="ahmad@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="reg_pass" placeholder="••••••••" required minlength="8" />
+      </div>
+      <div class="form-group">
+        <label>تأكيد كلمة المرور</label>
+        <input type="password" id="reg_pass_confirm" placeholder="••••••••" required />
+      </div>
+      <button class="btn btn-block btn-register" id="doRegister">إنشاء الحساب</button>
+      <div id="regMessage" class="message" style="display:none;"></div>
+      <a class="back-link" id="backFromRegister">العودة للواجهة الرئيسية</a>
+    </div>
+
+    <div id="login" class="section">
+      <h2><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+      <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="login_email" placeholder="ahmad@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="login_pass" placeholder="••••••••" required />
+      </div>
+      <button class="btn btn-block btn-login" id="doLogin">تسجيل الدخول</button>
+      <div id="loginMessage" class="message" style="display:none;"></div>
+      <a class="back-link" id="backFromLogin">العودة للواجهة الرئيسية</a>
+    </div>
+
+    <div id="insert" class="section employee-section">
+      <h2><i class="fas fa-user-plus"></i> إضافة موظف جديد</h2>
+      <div class="card">
+        <p>نموذج لإدخال بيانات الموظف: الرقم، الاسم، البريد، الراتب، تاريخ التعيين...</p>
+        <p style="margin-top: 0.5rem; color: #27ae60;">سيتم ربط هذا النموذج بواجهة Laravel API لاحقًا.</p>
+      </div>
+    </div>
+
+    <div id="update" class="section employee-section">
+      <h2><i class="fas fa-user-edit"></i> تحديث بيانات موظف</h2>
+      <div class="card">
+        <p>أدخل رقم الموظف، ثم عدّل الحقول المطلوبة.</p>
+        <p style="margin-top: 0.5rem; color: #27ae60;">سيتم ربطه بواجهة Laravel لتحديث السجلات.</p>
+      </div>
+    </div>
+
+    <div id="delete" class="section employee-section">
+      <h2><i class="fas fa-user-minus"></i> حذف موظف</h2>
+      <div class="card">
+        <p>أدخل رقم الموظف لحذفه نهائيًا من النظام.</p>
+        <p style="margin-top: 0.5rem; color: #e74c3c;">تحذير: العملية لا يمكن التراجع عنها.</p>
+      </div>
+    </div>
+
+    <div id="index" class="section employee-section">
+      <h2><i class="fas fa-list"></i> عرض جميع الموظفين</h2>
+      <div class="card">
+        <p>ستُعرض هنا قائمة كاملة بالموظفين مع إمكانية البحث والتصفية.</p>
+        <p style="margin-top: 0.5rem; color: #3498db;">البيانات ستُجلب من واجهة Laravel API.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000/api';
+
+    // عرض قسم معين
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+
+      document.getElementById(id).classList.add('active');
+      const link = document.querySelector(`[data-section="${id}"]`);
+      if (link) link.classList.add('active');
+    }
+
+    // ربط أزرار التنقل
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!document.body.classList.contains('logged-in') && link.dataset.section !== 'content') {
+          alert('يرجى تسجيل الدخول أولاً!');
+          return;
+        }
+        showSection(link.dataset.section);
+      });
+    });
+
+    // أزرار التنقل بين الصفحات
+    document.getElementById('showRegister').addEventListener('click', () => showSection('register'));
+    document.getElementById('showLogin').addEventListener('click', () => showSection('login'));
+    document.getElementById('backFromRegister').addEventListener('click', () => showSection('content'));
+    document.getElementById('backFromLogin').addEventListener('click', () => showSection('content'));
+
+    // === ✅ ربط إنشاء الحساب مع Laravel API ===
+    document.getElementById('doRegister').addEventListener('click', async () => {
+      const first = document.getElementById('reg_first').value.trim();
+      const last = document.getElementById('reg_last').value.trim();
+      const email = document.getElementById('reg_email').value.trim();
+      const pass = document.getElementById('reg_pass').value;
+      const confirm = document.getElementById('reg_pass_confirm').value;
+      const msgEl = document.getElementById('regMessage');
+      msgEl.style.display = 'block';
+
+      // التحقق من الحقول
+      if (!first || !last || !email || !pass || !confirm) {
+        msgEl.textContent = 'يرجى ملء جميع الحقول';
+        msgEl.className = 'message error';
+        return;
+      }
+
+      if (pass !== confirm) {
+        msgEl.textContent = 'كلمة المرور غير متطابقة';
+        msgEl.className = 'message error';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: first,
+            last_name: last,
+            email: email,
+            password: pass,
+            password_confirmation: confirm
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          msgEl.textContent = 'تم إنشاء الحساب بنجاح! يُرجى تسجيل الدخول.';
+          msgEl.className = 'message success';
+          setTimeout(() => {
+            showSection('login');
+            msgEl.style.display = 'none';
+          }, 2000);
+        } else {
+          msgEl.textContent = data.message || 'حدث خطأ أثناء التسجيل';
+          msgEl.className = 'message error';
+        }
+      } catch (error) {
+        msgEl.textContent = 'فشل الاتصال بخادم Laravel. تأكد من تشغيله.';
+        msgEl.className = 'message error';
+      }
+    });
+
+    // === ✅ ربط تسجيل الدخول مع Laravel API ===
+    document.getElementById('doLogin').addEventListener('click', async () => {
+      const email = document.getElementById('login_email').value.trim();
+      const pass = document.getElementById('login_pass').value;
+      const msgEl = document.getElementById('loginMessage');
+      msgEl.style.display = 'block';
+
+      if (!email || !pass) {
+        msgEl.textContent = 'يرجى ملء جميع الحقول';
+        msgEl.className = 'message error';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // حفظ البيانات
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          // تحديث الواجهة
+          document.body.classList.add('logged-in');
+          showSection('content');
+          msgEl.style.display = 'none';
+
+          // تنظيف الحقول
+          document.getElementById('login_email').value = '';
+          document.getElementById('login_pass').value = '';
+        } else {
+          msgEl.textContent = data.message || 'البريد أو كلمة المرور غير صحيحة';
+          msgEl.className = 'message error';
+        }
+      } catch (error) {
+        msgEl.textContent = 'فشل الاتصال بخادم Laravel. تأكد من تشغيله.';
+        msgEl.className = 'message error';
+      }
+    });
+
+    // === ✅ التحقق من حالة الدخول عند تحميل الصفحة ===
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('auth_token');
+      const user = localStorage.getItem('user');
+      if (token && user) {
+        document.body.classList.add('logged-in');
+      }
+    });
+  </script>
+</body>
+</html>
