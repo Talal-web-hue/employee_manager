@@ -23,6 +23,7 @@ class EmployeeController extends Controller
             [
                 'first_name'=>'required|max:15|string',
                 'last_name'=>'required|max:15|string',
+                'department_id'=>'required|integer',
                 'email'=>'required|max:100|string|unique:employees,email',
                 'phone'=>'max:15|string',
                 'position'=>'required|max:50|string',
@@ -108,4 +109,39 @@ class EmployeeController extends Controller
                 'message'=>'تم حذف الموظف بنجاح'
             ] , 200);
   }
+
+//  تابع البحث عن الموظف حسب رقمه الفريد و المسمى الوظيفي له
+
+    public function search(Request $request)
+    {
+     $request->validate(
+        [
+            'employee_number'=>'string|nullable',
+            'position'=>'string|nullable'
+        ]);
+
+        // إذا المستخدم لم يرسل أي معلومات عندها سوف يرجع الرسالة التالية 
+        if(! $request->filled('employee_number') && ! $request->filled('position'))
+            {
+            return response()->json(
+                [
+                    'message'=>'يرجى إرسال رقم الموظف أو المسمى الوظيفي لكي يتم البحث'
+                ] , 400);
+            }
+       $query = Employee::query();   // بناء الاستعلام
+       if($request->filled('employee_number')){
+       $query->where('employee_number' , $request->employee_number);
+       }
+       if($request->filled('position')){
+       $query->where('position' ,'Like' , '%' . $request->position . '%');
+       }
+      
+       $employees = $query->get();
+       return response()->json(
+        [
+        'message'=> 'تم العثور على الموظفين التالية اسماؤهم' ,
+        'data'=>$employees ,
+        'عدد الموظفين'=>$employees->count()
+        ] , 200);
+       }
 }

@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>نظام إدارة الموظفين</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+:root {
+--primary: #3498db;
+--success: #2ecc71;
+--danger: #e74c3c;
+--dark: #2c3e50;
+--light: #f8f9fa;
+}
+body {
+background: #f5f7fa;
+color: #333;
+padding-top: 70px;
+padding-bottom: 60px;
+line-height: 1.6;
+}
+/* ===== شريط التنقل ===== */
+.navbar {
+position: fixed;
+top: 0;
+width: 100%;
+background: linear-gradient(135deg, var(--dark), #1a2a6c);
+color: white;
+padding: 0.8rem 1.5rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+z-index: 1000;
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.logo {
+font-size: 1.4rem;
+font-weight: bold;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.logo i {
+color: var(--primary);
+}
+.nav-links {
+display: flex;
+gap: 0.8rem;
+flex-wrap: wrap;
+justify-content: center;
+}
+.nav-links a {
+color: white;
+text-decoration: none;
+padding: 0.4rem 0.9rem;
+border-radius: 6px;
+transition: all 0.3s;
+font-size: 0.95rem;
+}
+.nav-links a:hover, .nav-links a.active {
+background: rgba(255,255,255,0.2);
+transform: translateY(-2px);
+}
+.auth-buttons {
+display: flex;
+gap: 0.7rem;
+}
+.btn {
+padding: 0.45rem 1rem;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-weight: bold;
+color: white;
+transition: all 0.3s;
+font-size: 0.95rem;
+}
+.btn:hover {
+opacity: 0.95;
+transform: translateY(-2px);
+}
+.btn-login { background: var(--primary); }
+.btn-register { background: var(--success); }
+.btn-danger { background: var(--danger); }
+/* ===== الحاويات ===== */
+.container {
+max-width: 800px;
+margin: 0 auto;
+padding: 1.8rem;
+}
+.section {
+display: none;
+background: white;
+padding: 2rem;
+border-radius: 12px;
+box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.section.active {
+display: block;
+}
+h2 {
+text-align: center;
+margin-bottom: 1.6rem;
+color: var(--dark);
+font-size: 1.7rem;
+}
+.form-group {
+margin-bottom: 1.3rem;
+}
+label {
+display: block;
+margin-bottom: 0.5rem;
+font-weight: bold;
+color: var(--dark);
+}
+input, select {
+width: 100%;
+padding: 0.75rem;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 1rem;
+transition: border 0.3s;
+}
+input:focus, select:focus {
+border-color: var(--primary);
+outline: none;
+box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+.btn-block {
+width: 100%;
+padding: 0.85rem;
+margin-top: 1rem;
+font-size: 1.05rem;
+border-radius: 8px;
+}
+.back-link, .logout-link {
+display: block;
+text-align: center;
+margin-top: 1.2rem;
+color: var(--primary);
+text-decoration: none;
+font-weight: bold;
+transition: color 0.3s;
+}
+.back-link:hover, .logout-link:hover {
+color: #2980b9;
+text-decoration: underline;
+}
+.message {
+padding: 0.75rem;
+margin: 1rem 0;
+border-radius: 8px;
+text-align: center;
+font-weight: bold;
+}
+.message.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+.message.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+/* ===== حالة تسجيل الدخول ===== */
+body.logged-in .auth-buttons {
+display: none !important;
+}
+body.logged-in .employee-section {
+display: none;
+}
+body.logged-in .employee-section.active {
+display: block;
+}
+/* ===== زر تسجيل الخروج في الأسفل ===== */
+.logout-section {
+position: fixed;
+bottom: 0;
+width: 100%;
+background: white;
+padding: 0.8rem;
+text-align: center;
+box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+display: none;
+}
+body.logged-in .logout-section {
+display: block;
+}
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+.navbar {
+flex-direction: column;
+gap: 0.8rem;
+padding: 1rem;
+}
+.nav-links {
+gap: 0.6rem;
+}
+.auth-buttons {
+width: 100%;
+justify-content: center;
+}
+.container {
+padding: 1.2rem;
+}
+h2 {
+font-size: 1.5rem;
+}
+}
+/* ===== محتوى إضافي ===== */
+.content-section {
+text-align: justify;
+line-height: 1.8;
+color: #444;
+}
+.content-section p {
+margin-bottom: 1.2rem;
+}
+.features {
+background: #f8f9fa;
+padding: 1.2rem;
+border-radius: 8px;
+margin-top: 1.5rem;
+border-right: 3px solid var(--primary);
+}
+.features h3 {
+margin-bottom: 1rem;
+color: var(--dark);
+}
+.features ul {
+padding-right: 1.5rem;
+}
+.features li {
+margin-bottom: 0.6rem;
+list-style-type: none;
+position: relative;
+}
+.features li:before {
+content: "✓";
+color: var(--success);
+font-weight: bold;
+position: absolute;
+right: -1.5rem;
+}
+</style>
+</head>
+<body>
+<!-- شريط التنقل -->
+<nav class="navbar">
+<div class="logo">
+<i class="fas fa-users-cog"></i>
+<span>نظام الموظفين</span>
+</div>
+<div class="nav-links" id="mainNav">
+<a href="#" data-section="home" class="active">الرئيسية</a>
+<a href="#" data-section="content">Content</a>
+<a href="#" data-section="departments">الأقسام</a>
+<a href="#" data-section="tasks">المهام</a>
+<a href="#" data-section="leaves">الإجازات</a>
+<a href="#" data-section="search">بحث عن موظف</a>
+<a href="#" data-section="insert">إضافة موظف</a>
+<a href="#" data-section="update">تعديل موظف</a>
+<a href="#" data-section="delete">حذف موظف</a>
+<a href="#" data-section="show">عرض تفاصيل موظف</a>
+<a href="#" data-section="index">عرض جميع الموظفين</a>
+</div>
+<div class="auth-buttons">
+<button class="btn btn-register" id="showRegister">إنشاء حساب</button>
+<button class="btn btn-login" id="showLogin">تسجيل الدخول</button>
+</div>
+</nav>
+
+<div class="container">
+<!-- الرئيسية -->
+<div id="home" class="section active">
+<h2><i class="fas fa-home"></i> مرحبًا بك في نظام إدارة الموظفين</h2>
+<p style="text-align: center; color: #555; line-height: 1.8;">
+نظام متكامل يتيح للمدير إدارة بيانات الموظفين بسهولة وأمان.<br>
+يمكنك: إضافة، تعديل، عرض، وحذف الموظفين باستخدام رقم الموظف.
+</p>
+</div>
+
+<!-- Content -->
+<div id="content" class="section">
+<h2><i class="fas fa-book"></i> حول نظام إدارة الموظفين</h2>
+<div class="content-section">
+<p>
+يُعد نظام إدارة الموظفين أداة حيوية لأي مؤسسة تسعى لتحسين كفاءة عملياتها الإدارية وتعزيز إنتاجية فريق العمل.
+من خلال هذا النظام، يمكن للمدراء تتبع بيانات الموظفين بدقة، وإدارة السجلات الوظيفية، والرواتب،
+والحضور والانصراف، مما يوفر الوقت ويقلل من الأخطاء البشرية.
+</p>
+<p>
+تم تصميم هذا النظام خصيصًا لتلبية احتياجات المدراء في المؤسسات الصغيرة والمتوسطة،
+مع واجهة مستخدم بسيطة وسهلة الاستخدام، تضمن تجربة إدارة سلسة وآمنة.
+</p>
+<div class="features">
+<h3>مميزات النظام:</h3>
+<ul>
+<li>إضافة موظفين جدد ببيانات كاملة (الاسم، البريد، الهاتف، الراتب، ...)</li>
+<li>تعديل بيانات الموظفين في أي وقت</li>
+<li>عرض تفاصيل أي موظف فورًا باستخدام رقم الموظف الفريد</li>
+<li>حذف الموظفين غير النشطين بأمان</li>
+<li>عرض قائمة كاملة بجميع الموظفين مع إمكانية التصفية</li>
+<li>تسجيل دخول آمن يضمن خصوصية البيانات</li>
+</ul>
+</div>
+<p style="margin-top: 1.5rem; font-style: italic; color: #7f8c8d;">
+"الاستثمار في نظام إدارة الموظفين هو استثمار في كفاءة مؤسستك ونجاحها المستقبلي."
+</p>
+</div>
+</div>
+
+<!-- إدارة الأقسام -->
+<div id="departments" class="section employee-section">
+<h2><i class="fas fa-building"></i> إدارة الأقسام</h2>
+<div class="form-group">
+<label>اسم القسم</label>
+<input type="text" id="dept_name" placeholder="التطوير" required />
+</div>
+<div class="form-group">
+<label>الوصف</label>
+<input type="text" id="dept_description" placeholder="قسم مسؤول عن التطوير..." required />
+</div>
+<button class="btn btn-block btn-register" id="doStoreDept">إضافة قسم</button>
+<div id="deptMessage" class="message" style="display:none;"></div>
+<hr style="margin: 1.5rem 0;">
+<div class="form-group">
+<label>ID القسم</label>
+<input type="number" id="dept_id" placeholder="1" required />
+</div>
+<div class="form-group">
+<label>اسم القسم (اختياري)</label>
+<input type="text" id="dept_update_name" placeholder="التطوير" />
+</div>
+<div class="form-group">
+<label>الوصف (اختياري)</label>
+<input type="text" id="dept_update_description" placeholder="وصف جديد..." />
+</div>
+<button class="btn btn-block btn-login" id="doUpdateDept" style="background: var(--primary);">تعديل القسم</button>
+<button class="btn btn-block btn-danger" id="doDeleteDept">حذف القسم</button>
+<hr style="margin: 1.5rem 0;">
+<button class="btn btn-block btn-primary" id="loadEmployeeCount" style="background: var(--success);">عرض عدد الموظفين في كل قسم</button>
+<div id="employeeCountResult" style="margin-top: 1rem;"></div>
+</div>
+
+<!-- إدارة المهام -->
+<div id="tasks" class="section employee-section">
+<h2><i class="fas fa-tasks"></i> إدارة المهام</h2>
+<div class="form-group">
+<label>عنوان المهمة</label>
+<input type="text" id="task_title" placeholder="تحديث النظام" required />
+</div>
+<div class="form-group">
+<label>الوصف</label>
+<input type="text" id="task_description" placeholder="وصف المهمة..." />
+</div>
+<div class="form-group">
+<label>حالة المهمة</label>
+<select id="task_status" required>
+<option value="new">لم يتم التنفيذ بعد</option>
+<option value="in_progress">قيد التنفيذ</option>
+<option value="completed">منجزة</option>
+</select>
+</div>
+<div class="form-group">
+<label>ID الموظف</label>
+<input type="number" id="task_employee_id" placeholder="3" required />
+</div>
+<div class="form-group">
+<label>تاريخ الاستحقاق</label>
+<input type="date" id="task_due_date" required />
+</div>
+<button class="btn btn-block btn-register" id="doStoreTask">إضافة مهمة</button>
+<div id="taskMessage" class="message" style="display:none;"></div>
+<hr style="margin: 1.5rem 0;">
+<div class="form-group">
+<label>ID المهمة</label>
+<input type="number" id="task_id" placeholder="5" required />
+</div>
+<button class="btn btn-block btn-login" id="doUpdateTask" style="background: var(--primary);">تعديل المهمة</button>
+<button class="btn btn-block btn-danger" id="doDeleteTask">حذف المهمة</button>
+</div>
+
+<!-- إدارة الإجازات -->
+<div id="leaves" class="section employee-section">
+<h2><i class="fas fa-umbrella-beach"></i> إدارة الإجازات</h2>
+<div class="form-group">
+<label>ID الموظف</label>
+<input type="number" id="leave_employee_id" placeholder="2" required />
+</div>
+<div class="form-group">
+<label>نوع الإجازة</label>
+<input type="text" id="leave_type" placeholder="سنوية" required />
+</div>
+<div class="form-group">
+<label>حالة الإجازة</label>
+<select id="leave_status" required>
+<option value="قيد الانتظار">قيد الانتظار</option>
+<option value="مقبولة">مقبولة</option>
+<option value="مرفوضة">مرفوضة</option>
+</select>
+</div>
+<div class="form-group">
+<label>تاريخ البدء</label>
+<input type="date" id="leave_start_date" required />
+</div>
+<div class="form-group">
+<label>تاريخ الانتهاء</label>
+<input type="date" id="leave_end_date" required />
+</div>
+<div class="form-group">
+<label>عدد الأيام</label>
+<input type="number" id="leave_days_count" placeholder="5" required />
+</div>
+<button class="btn btn-block btn-register" id="doStoreLeave">إضافة إجازة</button>
+<div id="leaveMessage" class="message" style="display:none;"></div>
+<hr style="margin: 1.5rem 0;">
+<div class="form-group">
+<label>ID الإجازة</label>
+<input type="number" id="leave_id" placeholder="10" required />
+</div>
+<button class="btn btn-block btn-login" id="doUpdateLeave" style="background: var(--primary);">تعديل الإجازة</button>
+<button class="btn btn-block btn-danger" id="doDeleteLeave">حذف الإجازة</button>
+</div>
+
+<!-- البحث عن موظف -->
+<div id="search" class="section employee-section">
+<h2><i class="fas fa-search"></i> البحث عن موظف</h2>
+<div class="form-group">
+<label>رقم الموظف (اختياري)</label>
+<input type="text" id="search_emp_number" placeholder="EMP-1001" />
+</div>
+<div class="form-group">
+<label>المسمى الوظيفي (اختياري)</label>
+<input type="text" id="search_position" placeholder="مطور" />
+</div>
+<button class="btn btn-block btn-primary" id="doSearch" style="background: var(--primary);">بحث</button>
+<div id="searchResult" style="margin-top: 1.5rem;"></div>
+<div id="searchMessage" class="message" style="display:none;"></div>
+</div>
+
+<!-- إنشاء حساب -->
+<div id="register" class="section">
+<h2><i class="fas fa-user-plus"></i> إنشاء حساب مدير</h2>
+<div class="form-group">
+<label>الاسم الأول</label>
+<input type="text" id="reg_first" placeholder="أحمد" required />
+</div>
+<div class="form-group">
+<label>الاسم الأخير</label>
+<input type="text" id="reg_last" placeholder="محمد" required />
+</div>
+<div class="form-group">
+<label>البريد الإلكتروني</label>
+<input type="email" id="reg_email" placeholder="ahmad@example.com" required />
+</div>
+<div class="form-group">
+<label>كلمة المرور</label>
+<input type="password" id="reg_pass" placeholder="••••••••" required minlength="8" />
+</div>
+<div class="form-group">
+<label>تأكيد كلمة المرور</label>
+<input type="password" id="reg_pass_confirm" placeholder="••••••••" required />
+</div>
+<button class="btn btn-block btn-register" id="doRegister">إنشاء الحساب</button>
+<div id="regMessage" class="message" style="display:none;"></div>
+<a class="back-link" id="backFromRegister">العودة للرئيسية</a>
+</div>
+
+<!-- تسجيل الدخول -->
+<div id="login" class="section">
+<h2><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+<div class="form-group">
+<label>البريد الإلكتروني</label>
+<input type="email" id="login_email" placeholder="ahmad@example.com" required />
+</div>
+<div class="form-group">
+<label>كلمة المرور</label>
+<input type="password" id="login_pass" placeholder="••••••••" required />
+</div>
+<button class="btn btn-block btn-login" id="doLogin">تسجيل الدخول</button>
+<div id="loginMessage" class="message" style="display:none;"></div>
+<a class="back-link" id="backFromLogin">العودة للرئيسية</a>
+</div>
+
+<!-- إضافة موظف -->
+<div id="insert" class="section employee-section">
+<h2><i class="fas fa-user-plus"></i> إضافة موظف جديد</h2>
+<div class="form-group">
+<label>الاسم الأول</label>
+<input type="text" id="insert_first_name" placeholder="أحمد" required />
+</div>
+<div class="form-group">
+<label>الاسم الأخير</label>
+<input type="text" id="insert_last_name" placeholder="محمد" required />
+</div>
+<div class="form-group">
+<label>البريد الإلكتروني</label>
+<input type="email" id="insert_email" placeholder="ahmad@example.com" />
+</div>
+<div class="form-group">
+<label>رقم الموظف (فريد)</label>
+<input type="text" id="insert_employee_number" placeholder="EMP-1001" required />
+</div>
+<div class="form-group">
+<label>رقم القسم</label>
+<input type="number" id="insert_department_id" placeholder="1" required />
+</div>
+<div class="form-group">
+<label>رقم الهاتف</label>
+<input type="text" id="insert_phone" placeholder="0501234567" />
+</div>
+<div class="form-group">
+<label>المسمى الوظيفي</label>
+<input type="text" id="insert_position" placeholder="مطور برمجيات" required />
+</div>
+<div class="form-group">
+<label>الراتب (ر.س)</label>
+<input type="number" id="insert_salary" placeholder="8500" step="0.01" required />
+</div>
+<div class="form-group">
+<label>تاريخ التعيين</label>
+<input type="date" id="insert_hire_date" required />
+</div>
+<button class="btn btn-block btn-register" id="doInsert">إضافة الموظف</button>
+<div id="insertMessage" class="message" style="display:none;"></div>
+</div>
+
+<!-- تعديل موظف -->
+<div id="update" class="section employee-section">
+<h2><i class="fas fa-user-edit"></i> تعديل بيانات موظف</h2>
+<div class="form-group">
+<label>رقم الموظف</label>
+<input type="text" id="update_emp_number" placeholder="EMP-1001" required />
+</div>
+<button class="btn btn-block btn-primary" id="loadForUpdate" style="background: var(--primary);">تحميل بيانات الموظف</button>
+<div id="updateForm" style="display: none; margin-top: 1.5rem;">
+<div class="form-group">
+<label>الاسم الأول</label>
+<input type="text" id="update_first_name" required />
+</div>
+<div class="form-group">
+<label>الاسم الأخير</label>
+<input type="text" id="update_last_name" required />
+</div>
+<div class="form-group">
+<label>البريد الإلكتروني</label>
+<input type="email" id="update_email" />
+</div>
+<div class="form-group">
+<label>رقم القسم</label>
+<input type="number" id="update_department_id" required />
+</div>
+<div class="form-group">
+<label>رقم الهاتف</label>
+<input type="text" id="update_phone" />
+</div>
+<div class="form-group">
+<label>المسمى الوظيفي</label>
+<input type="text" id="update_position" required />
+</div>
+<div class="form-group">
+<label>الراتب (ر.س)</label>
+<input type="number" id="update_salary" step="0.01" required />
+</div>
+<div class="form-group">
+<label>تاريخ التعيين</label>
+<input type="date" id="update_hire_date" required />
+</div>
+<button class="btn btn-block btn-login" id="doUpdate">تحديث البيانات</button>
+</div>
+<div id="updateMessage" class="message" style="display:none;"></div>
+</div>
+
+<!-- عرض تفاصيل موظف -->
+<div id="show" class="section employee-section">
+<h2><i class="fas fa-user"></i> عرض تفاصيل موظف</h2>
+<div class="form-group">
+<label>رقم الموظف</label>
+<input type="text" id="show_emp_number" placeholder="EMP-1001" required />
+</div>
+<button class="btn btn-block btn-primary" id="doShow" style="background: var(--primary);">عرض التفاصيل</button>
+<div id="showResult" style="margin-top: 1.5rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+<div id="showMessage" class="message" style="display:none;"></div>
+</div>
+
+<!-- عرض جميع الموظفين -->
+<div id="index" class="section employee-section">
+<h2><i class="fas fa-list"></i> عرض جميع الموظفين</h2>
+<button class="btn btn-block btn-login" id="loadAll">عرض القائمة</button>
+<div id="allEmployees" style="margin-top: 1.5rem;"></div>
+<div id="indexMessage" class="message" style="display:none;"></div>
+</div>
+
+<!-- حذف موظف -->
+<div id="delete" class="section employee-section">
+<h2><i class="fas fa-user-minus" style="color: var(--danger);"></i> حذف موظف</h2>
+<div class="form-group">
+<label>رقم الموظف</label>
+<input type="text" id="delete_emp_number" placeholder="EMP-1001" required />
+</div>
+<button class="btn btn-block btn-danger" id="doDelete">حذف الموظف</button>
+<div id="deleteMessage" class="message" style="display:none;"></div>
+</div>
+</div>
+
+<!-- زر تسجيل الخروج في الأسفل -->
+<div class="logout-section">
+<a href="#" class="logout-link" id="doLogout">
+<i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+</a>
+</div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:8000/api';
+
+function showSection(id) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+const section = document.getElementById(id);
+if (section) {
+section.classList.add('active');
+const link = document.querySelector(`[data-section="${id}"]`);
+if (link) link.classList.add('active');
+}
+}
+
+function isLoggedIn() {
+return localStorage.getItem('auth_token') !== null;
+}
+
+document.querySelectorAll('.nav-links a').forEach(link => {
+link.addEventListener('click', (e) => {
+e.preventDefault();
+const target = link.dataset.section;
+if (['home', 'content'].includes(target)) {
+showSection(target);
+return;
+}
+if (!isLoggedIn()) {
+alert('يرجى تسجيل الدخول أولاً!');
+return;
+}
+if (!document.body.classList.contains('logged-in')) {
+document.body.classList.add('logged-in');
+}
+showSection(target);
+});
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+const showRegisterBtn = document.getElementById('showRegister');
+const showLoginBtn = document.getElementById('showLogin');
+const backFromRegister = document.getElementById('backFromRegister');
+const backFromLogin = document.getElementById('backFromLogin');
+
+if (showRegisterBtn) {
+showRegisterBtn.addEventListener('click', (e) => {
+e.preventDefault();
+showSection('register');
+});
+}
+if (showLoginBtn) {
+showLoginBtn.addEventListener('click', (e) => {
+e.preventDefault();
+showSection('login');
+});
+}
+if (backFromRegister) {
+backFromRegister.addEventListener('click', (e) => {
+e.preventDefault();
+showSection('home');
+});
+}
+if (backFromLogin) {
+backFromLogin.addEventListener('click', (e) => {
+e.preventDefault();
+showSection('home');
+});
+}
+});
+
+// === تسجيل الخروج ===
+document.getElementById('doLogout').addEventListener('click', async (e) => {
+e.preventDefault();
+const token = localStorage.getItem('auth_token');
+if (token) {
+await fetch(`${API_BASE}/logout`, {
+method: 'POST',
+headers: { 'Authorization': `Bearer ${token}` }
+});
+}
+localStorage.removeItem('auth_token');
+document.body.classList.remove('logged-in');
+showSection('home');
+});
+
+// === إنشاء الحساب ===
+document.getElementById('doRegister').addEventListener('click', async () => {
+const first = document.getElementById('reg_first').value.trim();
+const last = document.getElementById('reg_last').value.trim();
+const email = document.getElementById('reg_email').value.trim();
+const pass = document.getElementById('reg_pass').value;
+const passConfirm = document.getElementById('reg_pass_confirm').value;
+const msgEl = document.getElementById('regMessage');
+msgEl.style.display = 'block';
+
+if (!first || !last || !email || !pass || !passConfirm) {
+msgEl.textContent = 'يرجى ملء جميع الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+if (pass !== passConfirm) {
+msgEl.textContent = 'كلمة المرور وتأكيد كلمة المرور غير متطابقين';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/register`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+first_name: first,
+last_name: last,
+email,
+password: pass,
+password_confirmation: passConfirm
+})
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم إنشاء الحساب! يُرجى تسجيل الدخول.';
+msgEl.className = 'message success';
+setTimeout(() => showSection('login'), 2000);
+} else {
+msgEl.textContent = data.message || 'خطأ أثناء التسجيل';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال بالخادم';
+msgEl.className = 'message error';
+}
+});
+
+// === تسجيل الدخول ===
+document.getElementById('doLogin').addEventListener('click', async () => {
+const email = document.getElementById('login_email').value.trim();
+const pass = document.getElementById('login_pass').value;
+const msgEl = document.getElementById('loginMessage');
+msgEl.style.display = 'block';
+
+if (!email || !pass) {
+msgEl.textContent = 'يرجى ملء الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/login`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ email, password: pass })
+});
+const data = await res.json();
+
+if (res.ok) {
+localStorage.setItem('auth_token', data.token);
+document.body.classList.add('logged-in');
+showSection('departments');
+msgEl.style.display = 'none';
+} else {
+msgEl.textContent = data.message || 'بيانات خاطئة';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال بالخادم';
+msgEl.className = 'message error';
+}
+});
+
+// === إضافة موظف ===
+document.getElementById('doInsert').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return alert('يرجى تسجيل الدخول');
+
+const data = {
+first_name: document.getElementById('insert_first_name').value.trim(),
+last_name: document.getElementById('insert_last_name').value.trim(),
+email: document.getElementById('insert_email').value.trim() || null,
+employee_number: document.getElementById('insert_employee_number').value.trim(),
+department_id: parseInt(document.getElementById('insert_department_id').value) || null,
+phone: document.getElementById('insert_phone').value.trim() || null,
+position: document.getElementById('insert_position').value.trim(),
+salary: parseFloat(document.getElementById('insert_salary').value) || 0,
+hire_date: document.getElementById('insert_hire_date').value
+};
+
+const msgEl = document.getElementById('insertMessage');
+msgEl.style.display = 'block';
+
+if (!data.first_name || !data.last_name || !data.employee_number ||
+!data.position || !data.hire_date || !data.department_id) {
+msgEl.textContent = 'يرجى ملء الحقول المطلوبة (بما في ذلك رقم القسم)';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/store`, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify(data)
+});
+const result = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تمت الإضافة بنجاح!';
+msgEl.className = 'message success';
+['insert_first_name','insert_last_name','insert_email','insert_employee_number',
+'insert_department_id','insert_phone','insert_position','insert_salary','insert_hire_date']
+.forEach(id => document.getElementById(id).value = '');
+} else {
+msgEl.textContent = result.message || 'حدث خطأ';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === تحميل بيانات للمُعدّل ===
+document.getElementById('loadForUpdate').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const empNum = document.getElementById('update_emp_number').value.trim();
+if (!token || !empNum) return;
+
+try {
+const res = await fetch(`${API_BASE}/index/${empNum}`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (!res.ok) {
+alert('الموظف غير موجود');
+return;
+}
+
+const emp = await res.json();
+
+document.getElementById('update_first_name').value = emp.first_name || '';
+document.getElementById('update_last_name').value = emp.last_name || '';
+document.getElementById('update_email').value = emp.email || '';
+document.getElementById('update_department_id').value = emp.department_id || '';
+document.getElementById('update_phone').value = emp.phone || '';
+document.getElementById('update_position').value = emp.position || '';
+document.getElementById('update_salary').value = emp.salary || '';
+document.getElementById('update_hire_date').value = emp.hire_date || '';
+document.getElementById('updateForm').style.display = 'block';
+
+} catch (err) {
+alert('فشل التحميل');
+}
+});
+
+// === تعديل موظف ===
+document.getElementById('doUpdate').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const empNum = document.getElementById('update_emp_number').value.trim();
+if (!token || !empNum) return;
+
+const data = {
+first_name: document.getElementById('update_first_name').value.trim(),
+last_name: document.getElementById('update_last_name').value.trim(),
+email: document.getElementById('update_email').value.trim() || null,
+department_id: parseInt(document.getElementById('update_department_id').value) || null,
+phone: document.getElementById('update_phone').value.trim() || null,
+position: document.getElementById('update_position').value.trim(),
+salary: parseFloat(document.getElementById('update_salary').value) || 0,
+hire_date: document.getElementById('update_hire_date').value
+};
+
+try {
+const res = await fetch(`${API_BASE}/update/${empNum}`, {
+method: 'PUT',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify(data)
+});
+const result = await res.json();
+
+const msgEl = document.getElementById('updateMessage');
+msgEl.style.display = 'block';
+if (res.ok) {
+msgEl.textContent = 'تم التعديل بنجاح!';
+msgEl.className = 'message success';
+} else {
+msgEl.textContent = result.message || 'خطأ';
+msgEl.className = 'message error';
+}
+} catch (err) {
+alert('فشل الاتصال');
+}
+});
+
+// === عرض تفاصيل موظف ===
+document.getElementById('doShow').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const empNum = document.getElementById('show_emp_number').value.trim();
+if (!token || !empNum) return;
+
+try {
+const res = await fetch(`${API_BASE}/index/${empNum}`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+const msgEl = document.getElementById('showMessage');
+const resEl = document.getElementById('showResult');
+msgEl.style.display = 'none';
+
+if (!res.ok) {
+resEl.style.display = 'none';
+msgEl.textContent = 'الموظف غير موجود';
+msgEl.className = 'message error';
+msgEl.style.display = 'block';
+return;
+}
+
+const emp = await res.json();
+
+const fullName = (emp.first_name || '') + ' ' + (emp.last_name || '');
+resEl.innerHTML = `
+<h3>تفاصيل الموظف</h3>
+<p><strong>الاسم الكامل:</strong> ${fullName.trim() || 'غير متوفر'}</p>
+<p><strong>رقم الموظف:</strong> ${emp.employee_number || 'غير متوفر'}</p>
+<p><strong>رقم القسم:</strong> ${emp.department_id || 'غير متوفر'}</p>
+<p><strong>البريد الإلكتروني:</strong> ${emp.email || 'غير متوفر'}</p>
+<p><strong>رقم الهاتف:</strong> ${emp.phone || 'غير متوفر'}</p>
+<p><strong>المسمى الوظيفي:</strong> ${emp.position || 'غير متوفر'}</p>
+<p><strong>الراتب:</strong> ${emp.salary || '0'} ر.س</p>
+<p><strong>تاريخ التعيين:</strong> ${emp.hire_date || 'غير متوفر'}</p>
+`;
+resEl.style.display = 'block';
+
+} catch (err) {
+alert('فشل التحميل');
+}
+});
+
+// === عرض جميع الموظفين ===
+document.getElementById('loadAll').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return;
+
+try {
+const res = await fetch(`${API_BASE}/showAllEmployee`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (!res.ok) {
+document.getElementById('allEmployees').innerHTML = '<p style="color:var(--danger); text-align:center;">فشل التحميل</p>';
+return;
+}
+
+const employees = await res.json();
+
+const listEl = document.getElementById('allEmployees');
+if (!Array.isArray(employees) || employees.length === 0) {
+listEl.innerHTML = '<p style="text-align:center; color:var(--danger);">لا يوجد موظفين</p>';
+return;
+}
+
+let html = '<h3>قائمة الموظفين:</h3><div style="margin-top:1rem;">';
+employees.forEach(emp => {
+const fullName = (emp.first_name || '') + ' ' + (emp.last_name || '');
+html += `
+<div style="padding:1rem; margin:0.8rem 0; background:#f8f9fa; border-radius:8px; border-right:3px solid var(--primary);">
+<strong>${emp.employee_number}</strong> - ${fullName.trim() || 'غير معروف'} | القسم: ${emp.department_id || '—'} | ${emp.position || ''}
+</div>
+`;
+});
+html += '</div>';
+listEl.innerHTML = html;
+
+} catch (err) {
+document.getElementById('allEmployees').innerHTML = '<p style="color:var(--danger); text-align:center;">فشل التحميل</p>';
+}
+});
+
+// === حذف موظف ===
+document.getElementById('doDelete').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const empNumber = document.getElementById('delete_emp_number').value.trim();
+const msgEl = document.getElementById('deleteMessage');
+msgEl.style.display = 'block';
+
+if (!token) {
+msgEl.textContent = 'يرجى تسجيل الدخول أولاً';
+msgEl.className = 'message error';
+return;
+}
+
+if (!empNumber) {
+msgEl.textContent = 'يرجى إدخال رقم الموظف';
+msgEl.className = 'message error';
+return;
+}
+
+if (!confirm(`هل أنت متأكد من حذف الموظف رقم ${empNumber}؟ هذه العملية لا يمكن التراجع عنها.`)) {
+return;
+}
+
+try {
+const response = await fetch(`${API_BASE}/delete/${empNumber}`, {
+method: 'DELETE',
+headers: {
+'Authorization': `Bearer ${token}`
+}
+});
+
+const result = await response.json();
+
+if (response.ok) {
+msgEl.textContent = 'تم حذف الموظف بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('delete_emp_number').value = '';
+} else {
+msgEl.textContent = result.message || 'فشل الحذف: الموظف غير موجود';
+msgEl.className = 'message error';
+}
+} catch (error) {
+msgEl.textContent = 'فشل الاتصال بالخادم';
+msgEl.className = 'message error';
+}
+});
+
+// === إدارة الأقسام ===
+document.getElementById('doStoreDept').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return alert('يرجى تسجيل الدخول');
+
+const name = document.getElementById('dept_name').value.trim();
+const description = document.getElementById('dept_description').value.trim();
+const msgEl = document.getElementById('deptMessage');
+msgEl.style.display = 'block';
+
+if (!name || !description) {
+msgEl.textContent = 'يرجى ملء جميع الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/storeDept`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+body: JSON.stringify({ name, description })
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تمت إضافة القسم بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('dept_name').value = '';
+document.getElementById('dept_description').value = '';
+} else {
+msgEl.textContent = data.message || 'فشل الإضافة';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === تعديل القسم ===
+document.getElementById('doUpdateDept').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('dept_id').value.trim();
+const name = document.getElementById('dept_update_name').value.trim() || null;
+const description = document.getElementById('dept_update_description').value.trim() || null;
+const msgEl = document.getElementById('deptMessage');
+msgEl.style.display = 'block';
+
+if (!id) {
+msgEl.textContent = 'يرجى إدخال ID القسم';
+msgEl.className = 'message error';
+return;
+}
+
+if (!name && !description) {
+msgEl.textContent = 'يرجى إدخال اسم القسم أو الوصف للتحديث';
+msgEl.className = 'message error';
+return;
+}
+
+const updateData = {};
+if (name) updateData.name = name;
+if (description) updateData.description = description;
+
+try {
+const res = await fetch(`${API_BASE}/updateDept/${id}`, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+body: JSON.stringify(updateData)
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم التعديل بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('dept_update_name').value = '';
+document.getElementById('dept_update_description').value = '';
+} else {
+msgEl.textContent = data.message || 'فشل التعديل';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+document.getElementById('doDeleteDept').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('dept_id').value.trim();
+const msgEl = document.getElementById('deptMessage');
+msgEl.style.display = 'block';
+
+if (!id) {
+msgEl.textContent = 'يرجى إدخال ID القسم';
+msgEl.className = 'message error';
+return;
+}
+
+if (!confirm(`هل أنت متأكد من حذف القسم رقم ${id}؟`)) return;
+
+try {
+const res = await fetch(`${API_BASE}/deleteDept/${id}`, {
+method: 'DELETE',
+headers: { 'Authorization': `Bearer ${token}` }
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم الحذف بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('dept_id').value = '';
+} else {
+msgEl.textContent = data.message || 'فشل الحذف';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+document.getElementById('loadEmployeeCount').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return;
+
+try {
+const res = await fetch(`${API_BASE}/employeeNumbers`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (!res.ok) {
+document.getElementById('employeeCountResult').innerHTML = '<p style="color:var(--danger);">فشل التحميل</p>';
+return;
+}
+
+const data = await res.json();
+let html = '<h3>عدد الموظفين في كل قسم:</h3><ul style="list-style:none; padding-right:1rem;">';
+data.data.forEach(d => {
+html += `<li style="padding:0.5rem; background:#f8f9fa; margin:0.3rem 0; border-radius:5px;">
+<strong>${d.name}</strong>: ${d.employees_count} موظف(ين)
+</li>`;
+});
+html += '</ul>';
+document.getElementById('employeeCountResult').innerHTML = html;
+} catch (err) {
+document.getElementById('employeeCountResult').innerHTML = '<p style="color:var(--danger);">فشل الاتصال</p>';
+}
+});
+
+// === إدارة المهام ===
+document.getElementById('doStoreTask').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return alert('يرجى تسجيل الدخول');
+
+const title = document.getElementById('task_title').value.trim();
+const description = document.getElementById('task_description').value.trim() || null;
+const status = document.getElementById('task_status').value.trim();
+const employee_id = parseInt(document.getElementById('task_employee_id').value); // ← التغيير هنا
+const due_date = document.getElementById('task_due_date').value;
+
+const msgEl = document.getElementById('taskMessage');
+msgEl.style.display = 'block';
+
+if (!title || !status || !employee_id || !due_date) {
+msgEl.textContent = 'يرجى ملء الحقول المطلوبة (بما في ذلك حالة المهمة)';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/storeTask`, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify({
+employee_id,   // ← نفس الاسم المستخدم في الـ Controller
+title,
+description,
+due_date,
+status
+})
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تمت إضافة المهمة بنجاح!';
+msgEl.className = 'message success';
+['task_title','task_description','task_employee_id','task_due_date'].forEach(id => document.getElementById(id).value = '');
+document.getElementById('task_status').value = 'new';
+} else {
+msgEl.textContent = data.message || 'فشل الإضافة';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === تعديل مهمة ===
+document.getElementById('doUpdateTask').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('task_id').value.trim();
+const title = document.getElementById('task_title').value.trim();
+const description = document.getElementById('task_description').value.trim() || null;
+const status = document.getElementById('task_status').value.trim();
+const employee_id = parseInt(document.getElementById('task_employee_id').value);
+const due_date = document.getElementById('task_due_date').value;
+
+const msgEl = document.getElementById('taskMessage');
+msgEl.style.display = 'block';
+
+if (!id || !title || !status || !employee_id || !due_date) {
+msgEl.textContent = 'يرجى ملء جميع الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/updateTask/${id}`, {
+method: 'PUT',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify({
+employee_id,
+title,
+description,
+due_date,
+status
+})
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم التعديل بنجاح!';
+msgEl.className = 'message success';
+} else {
+msgEl.textContent = data.message || 'فشل التعديل';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === حذف مهمة ===
+document.getElementById('doDeleteTask').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('task_id').value.trim();
+const msgEl = document.getElementById('taskMessage');
+msgEl.style.display = 'block';
+
+if (!id) {
+msgEl.textContent = 'يرجى إدخال ID المهمة';
+msgEl.className = 'message error';
+return;
+}
+
+if (!confirm(`هل أنت متأكد من حذف المهمة رقم ${id}؟`)) return;
+
+try {
+const res = await fetch(`${API_BASE}/deleteTask/${id}`, {
+method: 'DELETE',
+headers: { 'Authorization': `Bearer ${token}` }
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم الحذف بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('task_id').value = '';
+} else {
+msgEl.textContent = data.message || 'فشل الحذف';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === إدارة الإجازات ===
+document.getElementById('doStoreLeave').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return alert('يرجى تسجيل الدخول');
+
+const employee_id = parseInt(document.getElementById('leave_employee_id').value);
+const type = document.getElementById('leave_type').value.trim();
+const status = document.getElementById('leave_status').value;
+const start_date = document.getElementById('leave_start_date').value;
+const end_date = document.getElementById('leave_end_date').value;
+const days_count = parseInt(document.getElementById('leave_days_count').value);
+
+const msgEl = document.getElementById('leaveMessage');
+msgEl.style.display = 'block';
+
+if (!employee_id || !type || !status || !start_date || !end_date || !days_count) {
+msgEl.textContent = 'يرجى ملء جميع الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/storeLeave`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+body: JSON.stringify({ employee_id, type, status, start_date, end_date, days_count })
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تمت إضافة الإجازة بنجاح!';
+msgEl.className = 'message success';
+['leave_employee_id','leave_type','leave_start_date','leave_end_date','leave_days_count'].forEach(id => document.getElementById(id).value = '');
+document.getElementById('leave_status').value = 'pending';
+} else {
+msgEl.textContent = data.message || 'فشل الإضافة';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+document.getElementById('doUpdateLeave').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('leave_id').value.trim();
+const employee_id = parseInt(document.getElementById('leave_employee_id').value);
+const type = document.getElementById('leave_type').value.trim();
+const status = document.getElementById('leave_status').value;
+const start_date = document.getElementById('leave_start_date').value;
+const end_date = document.getElementById('leave_end_date').value;
+const days_count = parseInt(document.getElementById('leave_days_count').value);
+
+const msgEl = document.getElementById('leaveMessage');
+msgEl.style.display = 'block';
+
+if (!id || !employee_id || !type || !status || !start_date || !end_date || !days_count) {
+msgEl.textContent = 'يرجى ملء جميع الحقول';
+msgEl.className = 'message error';
+return;
+}
+
+try {
+const res = await fetch(`${API_BASE}/updateLeave/${id}`, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+body: JSON.stringify({ employee_id, type, status, start_date, end_date, days_count })
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم التعديل بنجاح!';
+msgEl.className = 'message success';
+} else {
+msgEl.textContent = data.message || 'فشل التعديل';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+document.getElementById('doDeleteLeave').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('leave_id').value.trim();
+const msgEl = document.getElementById('leaveMessage');
+msgEl.style.display = 'block';
+
+if (!id) {
+msgEl.textContent = 'يرجى إدخال ID الإجازة';
+msgEl.className = 'message error';
+return;
+}
+
+if (!confirm(`هل أنت متأكد من حذف الإجازة رقم ${id}؟`)) return;
+
+try {
+const res = await fetch(`${API_BASE}/deleteLeave/${id}`, {
+method: 'DELETE',
+headers: { 'Authorization': `Bearer ${token}` }
+});
+const data = await res.json();
+
+if (res.ok) {
+msgEl.textContent = 'تم الحذف بنجاح!';
+msgEl.className = 'message success';
+document.getElementById('leave_id').value = '';
+} else {
+msgEl.textContent = data.message || 'فشل الحذف';
+msgEl.className = 'message error';
+}
+} catch (err) {
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+}
+});
+
+// === البحث عن موظف ===
+document.getElementById('doSearch').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+if (!token) return;
+
+const empNumber = document.getElementById('search_emp_number').value.trim() || null;
+const position = document.getElementById('search_position').value.trim() || null;
+const resultEl = document.getElementById('searchResult');
+const msgEl = document.getElementById('searchMessage');
+
+if (!empNumber && !position) {
+msgEl.style.display = 'block';
+msgEl.textContent = 'يرجى إدخال رقم الموظف أو المسمى الوظيفي';
+msgEl.className = 'message error';
+resultEl.style.display = 'none';
+return;
+}
+
+const params = new URLSearchParams();
+if (empNumber) params.append('employee_number', empNumber);
+if (position) params.append('position', position);
+
+try {
+const res = await fetch(`${API_BASE}/searchEmployee?${params.toString()}`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (!res.ok) {
+resultEl.style.display = 'none';
+msgEl.style.display = 'block';
+msgEl.textContent = 'لم يتم العثور على نتائج';
+msgEl.className = 'message error';
+return;
+}
+
+const data = await res.json();
+let html = '<h3>نتائج البحث:</h3>';
+data.data.forEach(emp => {
+const fullName = (emp.first_name || '') + ' ' + (emp.last_name || '');
+html += `
+<div style="padding:1rem; margin:0.8rem 0; background:#e8f5e9; border-radius:8px;">
+<strong>${emp.employee_number}</strong> - ${fullName.trim()} | القسم: ${emp.department_id || '—'} | ${emp.position}
+</div>
+`;
+});
+resultEl.innerHTML = html;
+resultEl.style.display = 'block';
+msgEl.style.display = 'none';
+} catch (err) {
+msgEl.style.display = 'block';
+msgEl.textContent = 'فشل الاتصال';
+msgEl.className = 'message error';
+resultEl.style.display = 'none';
+}
+});
+
+// === التحقق من الجلسة عند التحميل ===
+window.addEventListener('DOMContentLoaded', () => {
+if (isLoggedIn()) {
+document.body.classList.add('logged-in');
+}
+});
+</script>
+</body>
+</html>
