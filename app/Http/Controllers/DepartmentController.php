@@ -11,7 +11,7 @@ class DepartmentController extends Controller
     {
      $request->validate(
         [
-            'name'=>'required|string|min:3',
+            'name'=>'required|string',
             'description'=>'required|string|min:6',
         ]);
         $dept = Department::create(

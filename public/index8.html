@@ -22,7 +22,7 @@ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 body {
 background: #f5f7fa;
 color: #333;
-padding-top: 70px;
+padding-top: 120px; /* زيادة لتجنب التداخل مع القائمة الجديدة */
 padding-bottom: 60px;
 line-height: 1.6;
 }
@@ -40,6 +40,41 @@ align-items: center;
 z-index: 1000;
 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+/* ===== قائمة أزرار الموظفين (جديدة) ===== */
+.employee-actions-bar {
+position: fixed;
+top: 60px;
+width: 100%;
+background: #ecf0f1;
+padding: 0.6rem 1.5rem;
+display: flex;
+flex-wrap: wrap;
+gap: 0.6rem;
+justify-content: center;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+z-index: 999;
+}
+
+.employee-actions-bar a {
+color: var(--dark);
+text-decoration: none;
+padding: 0.4rem 0.8rem;
+border-radius: 6px;
+font-size: 0.9rem;
+font-weight: bold;
+background: white;
+transition: all 0.2s;
+border: 1px solid #bdc3c7;
+}
+
+.employee-actions-bar a:hover {
+background: var(--primary);
+color: white;
+border-color: var(--primary);
+transform: translateY(-2px);
+}
+
 .logo {
 font-size: 1.4rem;
 font-weight: bold;
@@ -198,12 +233,14 @@ flex-direction: column;
 gap: 0.8rem;
 padding: 1rem;
 }
-.nav-links {
-gap: 0.6rem;
+.employee-actions-bar {
+flex-direction: column;
+align-items: center;
+padding: 0.8rem 1rem;
 }
-.auth-buttons {
-width: 100%;
-justify-content: center;
+.employee-actions-bar a {
+width: 90%;
+text-align: center;
 }
 .container {
 padding: 1.2rem;
@@ -250,11 +287,12 @@ right: -1.5rem;
 </style>
 </head>
 <body>
+
 <!-- شريط التنقل -->
 <nav class="navbar">
 <div class="logo">
 <i class="fas fa-users-cog"></i>
-<span>منصة إدارة شؤون الموظفين و المهام</span>
+<span>منصة إدارة شؤون الموظفين</span>
 </div>
 <div class="nav-links" id="mainNav">
 <a href="#" data-section="home" class="active">الرئيسية</a>
@@ -262,12 +300,6 @@ right: -1.5rem;
 <a href="#" data-section="departments">الأقسام</a>
 <a href="#" data-section="tasks">المهام</a>
 <a href="#" data-section="leaves">الإجازات</a>
-<a href="#" data-section="search">بحث عن موظف</a>
-<a href="#" data-section="insert">إضافة موظف</a>
-<a href="#" data-section="update">تعديل موظف</a>
-<a href="#" data-section="delete">حذف موظف</a>
-<a href="#" data-section="show">عرض تفاصيل موظف</a>
-<a href="#" data-section="index">عرض جميع الموظفين</a>
 </div>
 <div class="auth-buttons">
 <button class="btn btn-register" id="showRegister">إنشاء حساب</button>
@@ -275,7 +307,18 @@ right: -1.5rem;
 </div>
 </nav>
 
+<!-- قائمة أزرار الموظفين (منفصلة) -->
+<div class="employee-actions-bar">
+<a href="#" data-section="insert">إضافة موظف</a>
+<a href="#" data-section="update">تعديل موظف</a>
+<a href="#" data-section="delete">حذف موظف</a>
+<a href="#" data-section="show">عرض تفاصيل موظف</a>
+<a href="#" data-section="index">عرض جميع الموظفين</a>
+<a href="#" data-section="search">البحث عن موظف</a>
+</div>
+
 <div class="container">
+
 <!-- الرئيسية -->
 <div id="home" class="section active">
 <h2><i class="fas fa-home"></i> مرحبًا بك في نظام إدارة الموظفين</h2>
@@ -395,7 +438,13 @@ right: -1.5rem;
 </div>
 <div class="form-group">
 <label>نوع الإجازة</label>
-<input type="text" id="leave_type" placeholder="سنوية" required />
+<select id="leave_type" required>
+<option value="">اختر النوع</option>
+<option value="سنوية">سنوية</option>
+<option value="شهرية">شهرية</option>
+<option value="أسبوعية">أسبوعية</option>
+<option value="طارئة">طارئة</option>
+</select>
 </div>
 <div class="form-group">
 <label>حالة الإجازة</label>
@@ -415,7 +464,7 @@ right: -1.5rem;
 </div>
 <div class="form-group">
 <label>عدد الأيام</label>
-<input type="number" id="leave_days_count" placeholder="5" required />
+<input type="number" id="leave_days_count" placeholder="5" min="1" required />
 </div>
 <button class="btn btn-block btn-register" id="doStoreLeave">إضافة إجازة</button>
 <div id="leaveMessage" class="message" style="display:none;"></div>
@@ -423,6 +472,44 @@ right: -1.5rem;
 <div class="form-group">
 <label>ID الإجازة</label>
 <input type="number" id="leave_id" placeholder="10" required />
+</div>
+<button class="btn btn-block btn-primary" id="loadLeaveForUpdate" style="background: var(--primary); margin-bottom: 1rem;">
+تحميل بيانات الإجازة
+</button>
+<div class="form-group">
+<label>ID الموظف (اختياري)</label>
+<input type="number" id="leave_update_employee_id" placeholder="2" />
+</div>
+<div class="form-group">
+<label>نوع الإجازة (اختياري)</label>
+<select id="leave_update_type">
+<option value="">لا تغيير</option>
+<option value="سنوية">سنوية</option>
+<option value="شهرية">شهرية</option>
+<option value="أسبوعية">أسبوعية</option>
+<option value="طارئة">طارئة</option>
+</select>
+</div>
+<div class="form-group">
+<label>حالة الإجازة (اختياري)</label>
+<select id="leave_update_status">
+<option value="">لا تغيير</option>
+<option value="قيد الانتظار">قيد الانتظار</option>
+<option value="مقبولة">مقبولة</option>
+<option value="مرفوضة">مرفوضة</option>
+</select>
+</div>
+<div class="form-group">
+<label>تاريخ البدء (اختياري)</label>
+<input type="date" id="leave_update_start_date" />
+</div>
+<div class="form-group">
+<label>تاريخ الانتهاء (اختياري)</label>
+<input type="date" id="leave_update_end_date" />
+</div>
+<div class="form-group">
+<label>عدد الأيام (اختياري)</label>
+<input type="number" id="leave_update_days_count" placeholder="5" min="1" />
 </div>
 <button class="btn btn-block btn-login" id="doUpdateLeave" style="background: var(--primary);">تعديل الإجازة</button>
 <button class="btn btn-block btn-danger" id="doDeleteLeave">حذف الإجازة</button>
@@ -607,6 +694,7 @@ right: -1.5rem;
 <button class="btn btn-block btn-danger" id="doDelete">حذف الموظف</button>
 <div id="deleteMessage" class="message" style="display:none;"></div>
 </div>
+
 </div>
 
 <!-- زر تسجيل الخروج في الأسفل -->
@@ -621,7 +709,7 @@ const API_BASE = 'http://127.0.0.1:8000/api';
 
 function showSection(id) {
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+document.querySelectorAll('.nav-links a, .employee-actions-bar a').forEach(a => a.classList.remove('active'));
 const section = document.getElementById(id);
 if (section) {
 section.classList.add('active');
@@ -634,7 +722,8 @@ function isLoggedIn() {
 return localStorage.getItem('auth_token') !== null;
 }
 
-document.querySelectorAll('.nav-links a').forEach(link => {
+// التعامل مع جميع الروابط (بما في ذلك employee-actions-bar)
+document.querySelectorAll('.nav-links a, .employee-actions-bar a').forEach(link => {
 link.addEventListener('click', (e) => {
 e.preventDefault();
 const target = link.dataset.section;
@@ -1204,7 +1293,7 @@ if (!token) return alert('يرجى تسجيل الدخول');
 const title = document.getElementById('task_title').value.trim();
 const description = document.getElementById('task_description').value.trim() || null;
 const status = document.getElementById('task_status').value.trim();
-const employee_id = parseInt(document.getElementById('task_employee_id').value); // ← التغيير هنا
+const employee_id = parseInt(document.getElementById('task_employee_id').value);
 const due_date = document.getElementById('task_due_date').value;
 
 const msgEl = document.getElementById('taskMessage');
@@ -1224,7 +1313,7 @@ headers: {
 'Authorization': `Bearer ${token}`
 },
 body: JSON.stringify({
-employee_id,   // ← نفس الاسم المستخدم في الـ Controller
+employee_id,
 title,
 description,
 due_date,
@@ -1248,7 +1337,6 @@ msgEl.className = 'message error';
 }
 });
 
-// === تعديل مهمة ===
 document.getElementById('doUpdateTask').addEventListener('click', async () => {
 const token = localStorage.getItem('auth_token');
 const id = document.getElementById('task_id').value.trim();
@@ -1297,7 +1385,6 @@ msgEl.className = 'message error';
 }
 });
 
-// === حذف مهمة ===
 document.getElementById('doDeleteTask').addEventListener('click', async () => {
 const token = localStorage.getItem('auth_token');
 const id = document.getElementById('task_id').value.trim();
@@ -1334,21 +1421,55 @@ msgEl.className = 'message error';
 });
 
 // === إدارة الإجازات ===
+
+// === تحميل بيانات الإجازة للتعديل ===
+document.getElementById('loadLeaveForUpdate').addEventListener('click', async () => {
+const token = localStorage.getItem('auth_token');
+const id = document.getElementById('leave_id').value.trim();
+if (!token || !id) return alert('يرجى إدخال ID الإجازة');
+
+try {
+const res = await fetch(`${API_BASE}/leaves/${id}`, {
+headers: { 'Authorization': `Bearer ${token}` }
+});
+
+if (!res.ok) {
+alert('الإجازة غير موجودة');
+return;
+}
+
+const leave = await res.json();
+
+document.getElementById('leave_update_employee_id').value = leave.employee_id || '';
+document.getElementById('leave_update_type').value = leave.type || '';
+document.getElementById('leave_update_status').value = leave.status || '';
+document.getElementById('leave_update_start_date').value = leave.start_date || '';
+document.getElementById('leave_update_end_date').value = leave.end_date || '';
+document.getElementById('leave_update_days_count').value = leave.days_count || '';
+
+} catch (err) {
+alert('فشل تحميل بيانات الإجازة');
+}
+});
+
+// === إضافة إجازة ===
 document.getElementById('doStoreLeave').addEventListener('click', async () => {
 const token = localStorage.getItem('auth_token');
 if (!token) return alert('يرجى تسجيل الدخول');
 
-const employee_id = parseInt(document.getElementById('leave_employee_id').value);
-const type = document.getElementById('leave_type').value.trim();
-const status = document.getElementById('leave_status').value;
-const start_date = document.getElementById('leave_start_date').value;
-const end_date = document.getElementById('leave_end_date').value;
-const days_count = parseInt(document.getElementById('leave_days_count').value);
+const data = {
+employee_id: parseInt(document.getElementById('leave_employee_id').value) || null,
+type: document.getElementById('leave_type').value.trim(),
+status: document.getElementById('leave_status').value.trim(),
+start_date: document.getElementById('leave_start_date').value,
+end_date: document.getElementById('leave_end_date').value,
+days_count: parseInt(document.getElementById('leave_days_count').value) || null
+};
 
 const msgEl = document.getElementById('leaveMessage');
 msgEl.style.display = 'block';
 
-if (!employee_id || !type || !status || !start_date || !end_date || !days_count) {
+if (!data.employee_id || !data.type || !data.status || !data.start_date || !data.end_date || !data.days_count) {
 msgEl.textContent = 'يرجى ملء جميع الحقول';
 msgEl.className = 'message error';
 return;
@@ -1357,97 +1478,120 @@ return;
 try {
 const res = await fetch(`${API_BASE}/storeLeave`, {
 method: 'POST',
-headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-body: JSON.stringify({ employee_id, type, status, start_date, end_date, days_count })
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify(data)
 });
-const data = await res.json();
+
+const result = await res.json();
 
 if (res.ok) {
 msgEl.textContent = 'تمت إضافة الإجازة بنجاح!';
 msgEl.className = 'message success';
-['leave_employee_id','leave_type','leave_start_date','leave_end_date','leave_days_count'].forEach(id => document.getElementById(id).value = '');
-document.getElementById('leave_status').value = 'pending';
+['leave_employee_id','leave_type','leave_start_date','leave_end_date','leave_days_count'].forEach(id => {
+document.getElementById(id).value = '';
+});
+document.getElementById('leave_status').value = 'قيد الانتظار';
 } else {
-msgEl.textContent = data.message || 'فشل الإضافة';
+msgEl.textContent = result.message || 'فشل الإضافة';
 msgEl.className = 'message error';
 }
 } catch (err) {
-msgEl.textContent = 'فشل الاتصال';
+msgEl.textContent = 'فشل الاتصال بالخادم';
 msgEl.className = 'message error';
 }
 });
 
+// === تعديل الإجازة (جزئي) ===
 document.getElementById('doUpdateLeave').addEventListener('click', async () => {
 const token = localStorage.getItem('auth_token');
 const id = document.getElementById('leave_id').value.trim();
-const employee_id = parseInt(document.getElementById('leave_employee_id').value);
-const type = document.getElementById('leave_type').value.trim();
-const status = document.getElementById('leave_status').value;
-const start_date = document.getElementById('leave_start_date').value;
-const end_date = document.getElementById('leave_end_date').value;
-const days_count = parseInt(document.getElementById('leave_days_count').value);
+if (!token || !id) return alert('يرجى إدخال ID الإجازة');
+
+const updateData = {};
+
+const empId = document.getElementById('leave_update_employee_id').value.trim();
+if (empId) updateData.employee_id = parseInt(empId);
+
+const type = document.getElementById('leave_update_type').value.trim();
+if (type) updateData.type = type;
+
+const status = document.getElementById('leave_update_status').value.trim();
+if (status) updateData.status = status;
+
+const startDate = document.getElementById('leave_update_start_date').value.trim();
+if (startDate) updateData.start_date = startDate;
+
+const endDate = document.getElementById('leave_update_end_date').value.trim();
+if (endDate) updateData.end_date = endDate;
+
+const daysCount = document.getElementById('leave_update_days_count').value.trim();
+if (daysCount) updateData.days_count = parseInt(daysCount);
+
+if (Object.keys(updateData).length === 0) {
+alert('يرجى تعديل حقل واحد على الأقل');
+return;
+}
 
 const msgEl = document.getElementById('leaveMessage');
 msgEl.style.display = 'block';
 
-if (!id || !employee_id || !type || !status || !start_date || !end_date || !days_count) {
-msgEl.textContent = 'يرجى ملء جميع الحقول';
-msgEl.className = 'message error';
-return;
-}
-
 try {
 const res = await fetch(`${API_BASE}/updateLeave/${id}`, {
 method: 'PUT',
-headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-body: JSON.stringify({ employee_id, type, status, start_date, end_date, days_count })
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify(updateData)
 });
-const data = await res.json();
+
+const result = await res.json();
 
 if (res.ok) {
 msgEl.textContent = 'تم التعديل بنجاح!';
 msgEl.className = 'message success';
 } else {
-msgEl.textContent = data.message || 'فشل التعديل';
+msgEl.textContent = result.message || 'فشل التعديل';
 msgEl.className = 'message error';
 }
 } catch (err) {
-msgEl.textContent = 'فشل الاتصال';
+msgEl.textContent = 'فشل الاتصال بالخادم';
 msgEl.className = 'message error';
 }
 });
 
+// === حذف الإجازة ===
 document.getElementById('doDeleteLeave').addEventListener('click', async () => {
 const token = localStorage.getItem('auth_token');
 const id = document.getElementById('leave_id').value.trim();
-const msgEl = document.getElementById('leaveMessage');
-msgEl.style.display = 'block';
-
-if (!id) {
-msgEl.textContent = 'يرجى إدخال ID الإجازة';
-msgEl.className = 'message error';
-return;
-}
+if (!token || !id) return alert('يرجى إدخال ID الإجازة');
 
 if (!confirm(`هل أنت متأكد من حذف الإجازة رقم ${id}؟`)) return;
+
+const msgEl = document.getElementById('leaveMessage');
+msgEl.style.display = 'block';
 
 try {
 const res = await fetch(`${API_BASE}/deleteLeave/${id}`, {
 method: 'DELETE',
 headers: { 'Authorization': `Bearer ${token}` }
 });
-const data = await res.json();
+
+const result = await res.json();
 
 if (res.ok) {
 msgEl.textContent = 'تم الحذف بنجاح!';
 msgEl.className = 'message success';
 document.getElementById('leave_id').value = '';
 } else {
-msgEl.textContent = data.message || 'فشل الحذف';
+msgEl.textContent = result.message || 'فشل الحذف';
 msgEl.className = 'message error';
 }
 } catch (err) {
-msgEl.textContent = 'فشل الاتصال';
+msgEl.textContent = 'فشل الاتصال بالخادم';
 msgEl.className = 'message error';
 }
 });
